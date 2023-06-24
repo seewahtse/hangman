@@ -1,5 +1,6 @@
 import random
 import time
+import requests
 
 # Initial Steps to invite in the game:
 print("\nWelcome to Hangman game by seewah\n")
@@ -15,38 +16,42 @@ def main():
     global count
     global display
     global word
+    global full_word
     global already_guessed
     global length
     global play_game
 
-    # fh = open("wordlist.txt")
-    with open("wordlist.txt", 'r') as fh:
-        words_to_guess = [line.strip() for line in fh]
-    # print(words_to_guess)
+    response = requests.get("https://random-word-api.herokuapp.com/word")
+    if response.status_code == 200:
+        words_to_guess = response.json()
+        word = random.choice(words_to_guess).lower()
+        full_word = word
+    else:
+        print("Failed to retrieve words from the API. Using a default wordlist.")
+        with open("wordlist.txt", 'r') as fh:
+            words_to_guess = [line.strip() for line in fh]
+        word = random.choice(words_to_guess)
 
-
-    word = random.choice(words_to_guess)
-    actual_word = word
     length = len(word)
     count = 0
     display = '_' * length
     already_guessed = []
     play_game = ""
-    # print(display)
-    print(word)
+    # print(word)
+
 
 # A loop to re-execute the game when the first round ends:
-
 def play_loop():
     global play_game
     play_game = input("Do You want to play again? y = yes, n = no \n")
-    while play_game not in ["y", "n","Y","N"]:
+    while play_game not in ["y", "n", "Y", "N"]:
         play_game = input("Do You want to play again? y = yes, n = no \n")
     if play_game == "y":
         main()
     elif play_game == "n":
         print("Thanks For Playing! We expect you back again!")
         exit()
+
 
 # Initializing all the conditions required for the game:
 def hangman():
@@ -62,9 +67,7 @@ def hangman():
         print("Invalid Input, Try a letter\n")
         hangman()
 
-
     elif guess in word:
-        # print(word)
         already_guessed.extend([guess])
         index = word.find(guess)
         word = word[:index] + "_" + word[index + 1:]
@@ -102,16 +105,16 @@ def hangman():
             print("Wrong guess. " + str(limit - count) + " guesses remaining\n")
 
         elif count == 3:
-           time.sleep(1)
-           print("   _____ \n"
-                 "  |     | \n"
-                 "  |     |\n"
-                 "  |     | \n"
-                 "  |      \n"
-                 "  |      \n"
-                 "  |      \n"
-                 "__|__\n")
-           print("Wrong guess. " + str(limit - count) + " guesses remaining\n")
+            time.sleep(1)
+            print("   _____ \n"
+                  "  |     | \n"
+                  "  |     |\n"
+                  "  |     | \n"
+                  "  |      \n"
+                  "  |      \n"
+                  "  |      \n"
+                  "__|__\n")
+            print("Wrong guess. " + str(limit - count) + " guesses remaining\n")
 
         elif count == 4:
             time.sleep(1)
@@ -136,7 +139,7 @@ def hangman():
                   "  |    / \ \n"
                   "__|__\n")
             print("Wrong guess. You are hanged!!!\n")
-            print("The word was:",already_guessed, word)
+            print("The word was:", word)  # Display the actual word
             play_loop()
 
     if word == '_' * length:
@@ -148,6 +151,5 @@ def hangman():
 
 
 main()
-
 
 hangman()
