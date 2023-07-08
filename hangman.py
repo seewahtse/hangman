@@ -16,7 +16,7 @@ time.sleep(3)
 
 # The parameters we require to execute the game:
 def main():
-    global count
+    global count, mode
     global display
     global word
     global full_word
