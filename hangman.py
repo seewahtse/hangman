@@ -5,6 +5,9 @@ import requests
 # Initial Steps to invite in the game:
 print("\nWelcome to Hangman game by seewah\n")
 name = input("Enter your name: ")
+
+
+
 print("Hello " + name + "! Best of Luck!")
 time.sleep(2)
 print("The game is about to start!\n Let's play Hangman!")
@@ -20,17 +23,47 @@ def main():
     global already_guessed
     global length
     global play_game
+    global game_difficulty
+    valid_game_difficulty_choice = False
 
-    response = requests.get("https://random-word-api.herokuapp.com/word")
-    if response.status_code == 200:
-        words_to_guess = response.json()
-        word = random.choice(words_to_guess).lower()
-        full_word = word
-    else:
-        print("Failed to retrieve words from the API. Using a default wordlist.")
-        with open("wordlist.txt", 'r') as fh:
-            words_to_guess = [line.strip() for line in fh]
-        word = random.choice(words_to_guess)
+
+    while not valid_game_difficulty_choice:
+
+        game_difficulty = input("enter 1 for easy, 2 for medium, 3 for hard: ")
+
+        if game_difficulty == "1":
+            mode = "easy"
+            valid_game_difficulty_choice = True
+        elif game_difficulty == "2":
+            mode = "medium"
+            valid_game_difficulty_choice = True
+        elif game_difficulty == "3":
+            mode = "hard"
+            valid_game_difficulty_choice = True
+        else:
+            valid_game_difficulty_choice = False
+
+    print(f'You have selected {mode} mode')
+
+
+
+    while True:
+        word = fetch_word()
+        if game_difficulty == '1':
+            if len(word) < 5:
+                break
+            else:
+                continue
+        elif game_difficulty == '2':
+            if len(word) < 8:
+                break
+            else:
+                continue
+        else:
+            if len(word) <= 8:
+                continue
+            else:
+                break
 
     length = len(word)
     count = 0
@@ -148,6 +181,19 @@ def hangman():
 
     elif count != limit:
         hangman()
+
+
+def fetch_word():
+    response = requests.get("https://random-word-api.herokuapp.com/word")
+    if response.status_code == 200:
+        word_to_guess = response.json()
+        word = word_to_guess[0]
+    else:
+        print("Failed to retrieve words from the API. Using a default wordlist.")
+        with open("wordlist.txt", 'r') as fh:
+            word_to_guess = [line.strip() for line in fh]
+        word = random.choice(word_to_guess)
+    return word
 
 
 main()
