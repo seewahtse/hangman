@@ -55,12 +55,12 @@ def main():
             else:
                 continue
         elif game_difficulty == '2':
-            if len(word) < 8:
+            if 8 > len(word) > 4:
                 break
             else:
                 continue
         else:
-            if len(word) <= 8:
+            if len(word) >= 8:
                 continue
             else:
                 break
